@@ -18,3 +18,8 @@ For each player:
                               For any other splash, add 100 points
 For each team, sum up the points of the team's players.
 ```
+
+
+In simple imperative programming, this algorithm has a complexity of O(nlogn), due to the sorting process (mergesort).
+The Haskell implementation also has the same complexity. The main difference is that loops and iterations must be replaced with tail recursions.
+
