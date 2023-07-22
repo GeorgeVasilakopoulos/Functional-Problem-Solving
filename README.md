@@ -3,6 +3,7 @@
 1. [μπουγέλα](#1-μπουγέλα-)
 2. [forest](#2-forest-)
 3. [pebbles](#3-pebbles---)
+4. [lexword](#4-lexword-)
 
 
 This set of problems was given as an assignment in course ```ΘΠ01 Principles of Programming Languages```. \
@@ -284,4 +285,96 @@ Both the imperative and the functional implementations of this algorithm have a 
 In the final implementation I also applied an optimization of removing adjacent pairs of white pebbles.
 
 ---
+
+## 4. *lexword* 🔤
+
+Mitsos and Kitsos now play with words: Initially, Kitsos writes N letters where each of them is either 'a', 'b' or 'c'. Mitsos also writes a word of his own of size N, using letters 'a','b','c'.
+
+
+Kitsos now must write a new word, using the N letters from the word that he initially wrote, such that:
+
+- Each character of the new word is different from the corresponding character of the word that Mitsos wrote.
+
+- The new word is the *lexicographically smallest* word that has the previous property.
+
+
+Help Kitsos by defining a function `lexword` that returns the word with the previous property, given the initial words that Kitsos and Mitsos wrote. For example:
+
+
+```
+lexword "aaabc" "abcba" = "baaac"
+
+/*
+"baaac" is the lexicographically smallest permutation of "aaabc" 
+such that all corresponding letters are different from "abcba"
+*/
+```
+
+Assume that in the test cases it will always be possible to construct such a word.
+
+
+### Solution
+
+This problem can be solved with a greedy approach:
+
+- We will count the occurances of each character in K and, separately, in M.
+
+- Then, we will create the output word by examining sequentially each character of M and selecting the smallest letter that satisfies some constraints:
+
+
+```
+check_constraints((A1,B1,C1), (A2,B2,C2)):
+	return 		B1 + C1 >= A2	//There are enough remaining Bs and Cs to replace the rest of As
+				 &&	A1 + C1 >= B2 //There are enough remaining As and Cs to replace the rest of Bs
+				 && A1 + B1 >= C2	//...
+				 && A1>=0 && B1 >=0 && C1 >=0
+
+lexword(K,M):
+	(Ak,Bk,Ck) = Count number of occurances of each character in K 
+	(Am,Bm,Cm) = Count number of occurances of each character in M 
+
+	output_word = ""
+
+	for each character c in M:
+		if c is 'a':
+			if check_constraints((Ak,Bk-1,Ck), (Am-1,Bm,Cm)) //Selecting a b does not violate the constraints
+				output_word += 'b'
+				Bk -= 1 					//One less b available
+			else 
+				output_word += 'c'
+				Ck -= 1  					//One less c available
+			Am -= 1 			//One less a left
+
+		else if c is 'b':
+			if check_constraints((Ak-1,Bk,Ck), (Am,Bm-1,Cm)) //Selecting an a does not violate the constraints
+				output_word += 'a'
+				Ak -= 1 					//One less a available
+			else 
+				output_word += 'c'
+				Ck -= 1  					//One less c available
+			Bm -= 1 			//One less b left
+
+		else if c is 'c'
+			if check_constraints((Ak-1,Bk,Ck), (Am,Bm,Cm-1)) //Selecting an a does not violate the constraints
+				output_word += 'a'
+				Ak -= 1 					//One less a available
+			else 
+				output_word += 'b'
+				Bk -= 1  					//One less b available
+			Cm -= 1 			//One less c left
+```
+
+We can prove using induction that we can always choose a letter that does not violate the constraints. I'll leave this as an exercise to the reader ;)
+
+
+Implementing this algorithm in Haskell is not difficult, as the for loop can be easily replaced with a tail recursion.
+
+
+The complexity is, of course, O(n), as we only traverse the N lettered strings twice.
+
+
+
+
+
+
 
