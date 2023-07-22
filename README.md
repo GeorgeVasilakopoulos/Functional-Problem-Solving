@@ -4,7 +4,7 @@
 2. [forest](#2-forest-)
 3. [pebbles](#3-pebbles---)
 4. [lexword](#4-lexword-)
-
+5. [encrypt](#5-encrypt-)
 
 This set of problems was given as an assignment in course ```ΘΠ01 Principles of Programming Languages```. \
 This submission was the *only* one that received a perfect score, passing even the most obscure corner cases.
@@ -374,6 +374,176 @@ Implementing this algorithm in Haskell is not difficult, as the for loop can be 
 The complexity is, of course, O(n), as we only traverse the N lettered strings twice.
 
 ---
+
+
+## 5. *encrypt* 🔐
+
+Mitsos has an array of N distinct words that he wants to encrypt in order to send a secret message to his classmates. The words may have different lengths.
+
+The encryption is done using a *key*, which is a permutation of the english alphabet: Replace all occurances of 'a' in the initial text with the *first* letter of the key. Replace all occurances of 'b' in the initial text with the *second* letter of the key, and so on.
+
+Mitsos also has an array `A` which contains a permutation of numbers 1 to N. He wants to find a *key* such that:
+
+- If he encodes the array and sorts it lexicographically, the word which was initially in position `A[i]`, is now (encrypted) in position `i`, after the encryption and the sorting.
+
+
+Define a function `encrypt` which takes as input the word array and the permutation `A` and returns "yes" and the *key* that has this property (if there exists one). Otherwise, it returns "no" and an empty string. For example:
+
+```
+encrypt ["ab","bc"] [2,1] = ("yes","bacdefghijklmnopqrstuvwxyz")
+
+encrypt ["abc","bcd","add"] [1,2,3] = ("no",[])
+``` 
+
+
+If there are multiple keys that satisfy this condition, return any one of them.
+
+
+
+### Solution
+
+The first thing that we can do, is to sort the initial array of words according to the given permutation of numbers from 1 to n. After we do that, our goal will be to find a key such that when these words are encrypted, they will be in lexicographical order.
+
+
+We want the word in position `A[i]` to be replaced in position `i`. It would be much more convenient to know *the final position of each word in the initial order* instead of *the original position of each word in the final order*. 
+
+We can obtain the *final positions of each word* by 'transposing' the array A: If `A[i]` is the ith element of A, then, in the transposed array, `i` will be the element of the `A[i]`th position of the array.
+
+
+**Interestingly enough**, calculating the transposed array can be done in *linear* time in an imperative language with random access, by using an array `A'` and assigning `A'[A[i]] := i` for each `i`. 
+
+However, in a functional language, this is (probably) impossible to do. A naive approach would be to simulate `A'[A[i]] := i` by iterating all the way to the `A[i]` th element of a list and assigning `i`. Such an approach would be of O(n^2) complexity.
+
+A better approach would be:
+
+```
+Create a list B[i] = [(i,A[i]) for i in range (1,N)]
+Sort list B according to the second part of each tuple
+Get A' by adding into a list the first part of each tuple in B, in order
+```
+
+This approach requires O(nlogn) steps, as the dominating factor nlogn originates from the sorting process. 
+
+
+Now that he have the transposed array, we can follow the same process to obtain the final permutation of the words:
+
+```
+//W[i] is the ith word in the initial order
+Create B[i] = [(W[i],A'[i]) for i in range(1,N)]
+Sort list B according to the second part of each tuple
+Get W' by adding into a list the first part of each tuple in B, in order
+```
+
+
+At this point, all we need to do is find a valid *key* so that if we encrypt each word in W' with it, the resulting array will be lexicographically sorted. 
+
+
+**Let's ask a simpler question**: if this sequence of words is considered 'sorted', then what would be a valid alphabetic order so that the words are indeed sorted under that order?
+
+For example, assume that these words are sorted under some alphabetic order:
+
+```
+1. cluster
+2. bridge
+3. break
+4. black
+5. ashtray
+6. abnormal
+```
+
+The constraints that emerge from this sequence of words are:
+- `c < b` and `b < a`, due to the first letters of the words
+- `r < l`,  due to the second letters of words 2,3,4
+- `i < e`, due to the third letters of words 2,3
+- `s < b`, due to the second letters of 5,6
+
+Since no constraints are contradictory to each other, any alphabet that satisfies them would be a valid alphabet.
+
+
+The constraints can be found recursively as follows
+```
+Find constraints from the first letters of the words.
+For each independent subsequence of words that start with the same letter:
+	Find constraints recursively by removing the first letters of words
+```
+
+
+In the previous example:
+
+```
+1. cluster
+2. bridge
+3. break
+4. black
+5. ashtray
+6. abnormal
+```
+
+- From the first letters we obtain `c < b` and `b < a`
+- By recursively calling the algorithm on:
+		
+	```
+	ridge
+	reak
+	lack
+	```
+
+	We get `r < l` and then after one further recursive call on 'idge', 'eak' we get `i < e` 
+
+- By recursively calling the algorithm on:
+
+	```
+	ashtray
+	abnormal
+	```
+	We get `s < b`
+
+
+- Therefore, the algorithm returns \{`c < b`, `b < a`, `r < l`, `i < e`, `s < b`\}
+
+- This is relatively easy to implement in Haskell and requires no major modifications in order to work.
+...
+
+So, how can we model this problem and find such an ordering efficiently?
+
+
+**Surprisingly enough**, this can be viewed as a **graph** problem:
+
+- Each letter of the english alphabet is a node in the graph
+
+- Each constraint is a directed edge in the graph: if `r < l` is a constraint, then we have an edge from `r` to `l`.
+
+- The problem of finding a valid alphabet is equivalent to the problem of finding a **topological ordering** of the nodes in the graph. If no such ordering exists (i.e. if the graph contains a cycle) then no valid alphabet exists.
+
+The algorithm for finding a topological ordering is very similar to the one that we presented in problem 2. The Haskell implementation is also identical...
+
+
+OK, so now we can find a valid ordering. But how is the *key* related to the ordering?
+
+Remember, the key tells us how to change the original letters, while the ordering tells us **in which original letter each final letter could correspond to**. Therefore, all we need to do in order to obtain the key from the ordering, is **apply the transposition algorithm** that we presented earlier, on the ordering.
+
+To sum up:
+
+```
+Transpose A
+Sort the words according to transposed A
+Find constraints with recursive algorithm
+Create graph and add constraints as edges
+Find topological ordering of nodes-letters
+If no ordering exists return ("no",[])
+Else, return ("yes", transposed ordering)
+```
+
+
+
+The Haskell implementation of this algorithm has a complexity of O(nlogn) due to the sortings.
+
+
+
+
+
+
+
 
 
 
