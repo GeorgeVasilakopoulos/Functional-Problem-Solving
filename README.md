@@ -1,7 +1,13 @@
 # Tasks:
 
+1. [Μπουγέλα](#1-μπουγέλα-)
+2. [forest](#2-forest-)
+3. [pebbles](#3-pebbles---)
 
-## 1. *Μπουγέλα*
+
+
+
+## 1. *Μπουγέλα* 🔫
 Little Mitsos and 7 of his friends bought new waterguns and got split into two teams, A and B. The game is played as follows: Each time a player from one team splashes a player from the other team, the first player's team gains 100 points. If, within 10 seconds, the same player splashes another player of the opposite team, then their team gains 100 points, plus a bonus of 50 points (*διπλοκατάβρεγμα*). Given a list of tuples ```(t_i,p_i,q_i)```, ```0<=t_i<=1000```, ```1<=p_i,q_i<=8``` which mean that player ```p_i``` splashed player ```q_i``` at time point ```t_i```, create a function ```mpougela``` that calculates the scores of the two teams. For example:
 
 ```mpougela [(10,2,5),(15,2,6),(25,2,5)] = (400,0)```
@@ -23,8 +29,11 @@ For each team, sum up the points of the team's players.
 In simple imperative programming, this algorithm has a complexity of O(nlogn), due to the sorting process (mergesort).
 The Haskell implementation also has the same complexity. The main difference is that loops and iterations must be replaced with tail recursion.
 
+---
 
-## 2. *forest*
+
+
+## 2. *forest* 🌲🌲
 Given two trees, it is possible to connect them into a single tree by adding an edge in between *any* two nodes of the two trees. Given n trees, what is the maximum path that can be produced in the final tree, by making n-1 sequential connections between the trees? Define a function that takes as input a list of edges between the nodes and returns the length of the maximum path. For example:
 
 ```forest [(1,2)(1,3),(1,4),(5,6),(5,7),(5,8)] = 5```
@@ -101,7 +110,10 @@ By using such a structure in order to store information about the nodes, we can 
 
 As a result, the previous imperative program can be transformed into a functional one that runs in O(nlogn)
 
-## 3. *pebbles*
+---
+
+
+## 3. *pebbles* 🪨🪨  🪨
 
 Mitsos and Kitsos play the following game: 
 
@@ -269,5 +281,5 @@ Both the imperative and the functional implementations of this algorithm have a 
 
 In the final implementation I also applied an optimization of removing adjacent pairs of white pebbles.
 
-
+---
 
