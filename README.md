@@ -1,13 +1,15 @@
 # Tasks:
 
-1. [Μπουγέλα](#1-μπουγέλα-)
+1. [μπουγέλα](#1-μπουγέλα-)
 2. [forest](#2-forest-)
 3. [pebbles](#3-pebbles---)
 
 
+This set of problems was given as an assignment in course ```ΘΠ01 Principles of Programming Languages```. \
+This submission was the *only* one that received a perfect score, passing even the most obscure corner cases.
 
 
-## 1. *Μπουγέλα* 🔫
+## 1. *μπουγέλα* 🔫
 Little Mitsos and 7 of his friends bought new waterguns and got split into two teams, A and B. The game is played as follows: Each time a player from one team splashes a player from the other team, the first player's team gains 100 points. If, within 10 seconds, the same player splashes another player of the opposite team, then their team gains 100 points, plus a bonus of 50 points (*διπλοκατάβρεγμα*). Given a list of tuples ```(t_i,p_i,q_i)```, ```0<=t_i<=1000```, ```1<=p_i,q_i<=8``` which mean that player ```p_i``` splashed player ```q_i``` at time point ```t_i```, create a function ```mpougela``` that calculates the scores of the two teams. For example:
 
 ```mpougela [(10,2,5),(15,2,6),(25,2,5)] = (400,0)```
@@ -254,7 +256,7 @@ The idea is that if we 'replaced' such intervals with single b's, then the probl
 
 In other words, **in the context of recursion, these intervals behave just like base cases of single black pebbles**.
 
-Therefore, if we modify our algorithm so that ```dp(any such interval) = dp("b") = (2,0)```, it will produce correct results for the original problem.
+Therefore, if we modify our algorithm so that ```dp(any such interval) = dp("b") = (1,0)```, it will produce correct results for the original problem.
 
 
 
