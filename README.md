@@ -125,7 +125,7 @@ Mitsos and Kitsos play the following game:
 
  - The game stops when one of the players has collected a total of K pebbles, in which case he loses and the other player wins.  
 
- - There are **at least** 2k-1 black pebbles in the line.
+ - There are **at least** 2K-1 black pebbles in the line.
 
 
 Mitsos wonders whether he can beat Kitsos regardless of how well he plays.
@@ -159,12 +159,12 @@ This problem can be solved with dynamic programming:
 - For each subproblem we will calculate the *minimum number of pebbles* that each player will get if both of them play optimally. 
 
 - **Base Cases**: 
-
-
-	>dp("b") = (1,0)  		//In the end of this game, Mitsos will have 1 black pebble and Kitsos 0
-
-	>dp("w") = (0,0) 			//Mitsos 0 Kitsos 0	
-
+	
+	```
+	dp("b") = (1,0)  		//In the end of this game, Mitsos will have 1 black pebble and Kitsos 0
+	
+	dp("w") = (0,0) 		//Mitsos 0 Kitsos 0	
+	```
 
 - **Dynamic Formula**:
 
