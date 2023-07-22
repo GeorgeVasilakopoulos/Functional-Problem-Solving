@@ -25,12 +25,13 @@ The Haskell implementation also has the same complexity. The main difference is 
 
 
 ## 2. *forest*
-Given two trees, it is possible to connect them into a single tree by adding an edge in between *any* two nodes of the two trees. Given n trees, what is the maximum path that can be produced in the final tree, by making n-1 sequential connections between the trees? Create a function that takes as input a list of edges between the nodes and returns the length of the maximum path. For example:
+Given two trees, it is possible to connect them into a single tree by adding an edge in between *any* two nodes of the two trees. Given n trees, what is the maximum path that can be produced in the final tree, by making n-1 sequential connections between the trees? Define a function that takes as input a list of edges between the nodes and returns the length of the maximum path. For example:
 
 ```forest [(1,2)(1,3),(1,4),(5,6),(5,7),(5,8)] = 5```
 
 Assume that the node indexes range from 1, up to some maximum index.
-Also assume that the input is a valid representation of a forest
+
+Also assume that the input is a valid representation of a forest.
 
 ### Solution
 
@@ -99,4 +100,174 @@ By using such a structure in order to store information about the nodes, we can 
 
 
 As a result, the previous imperative program can be transformed into a functional one that runs in O(nlogn)
+
+## 3. *pebbles*
+
+Mitsos and Kitsos play the following game: 
+
+ - They have placed n pebbles side by side and each pebble is either *black* or *white*. 
+
+ - Mitsos plays first and he must choose to take a pebble from either side of the line of pebbles. 
+
+ - Then, it's Kitsos' turn to pick a pebble from either side. 
+
+ - The game stops when one of the players has collected a total of K pebbles, in which case he loses and the other player wins.  
+
+ - There are **at least** 2k-1 black pebbles in the line.
+
+
+Mitsos wonders whether he can beat Kitsos regardless of how well he plays.
+
+Define a function `pebbles` that takes as input a string representing the pebble order and a number K < n and returns 'yes' if Mitsos can win regardless of how Kitsos plays and 'no' otherwise.
+
+For example:
+
+```
+pebbles "bbbw" 1 = "yes"  //Mitsos takes w and Kitsos is forced to take a b and loses
+pebbles "wwbwbwwb" 1 = "no"
+```
+
+
+### Solution
+
+
+First, let's consider a simpler version of this game, in which there are **exactly** 2K-1 black pebbles in the list. In this version of the game, the last person to take a black pebble loses.
+
+In this version, the following property holds:
+
+```
+The objective of minimizing the gained black pebbles is equivalent to the objective of not getting the last black pebble
+```
+
+
+This problem can be solved with dynamic programming:
+
+- Each subproblem is a substring of the given string. This means that there are n(n+1)/2 subproblems
+
+- For each subproblem we will calculate the *minimum number of pebbles* that each player will get if both of them play optimally. 
+
+- **Base Cases**: 
+
+
+	>dp("b") = (1,0)  		//In the end of this game, Mitsos will have 1 black pebble and Kitsos 0
+
+	>dp("w") = (0,0) 			//Mitsos 0 Kitsos 0	
+
+
+- **Dynamic Formula**:
+
+	Assume that we want to find ```dp(lSr)```, where ```l,r``` are either 'b' or 'w' and S is a subproblem (i.e. a substring of b's and w's)
+
+	Also, assume that ```dp(lS) = (ml,kl)``` and ```dp(Sr) = (mr,kr)``` have already been computed (hypothesis of recursion).
+
+
+	- If Mitsos, who plays first, chooses ```l```, then if ```l``` is 'b', then he will get one black and ***as many blacks as Kitsos would get*** in the subproblem ```Sr``` Otherwise, if ```l``` is 'w', then Mitsos would get *only* as many as Kitsos in ```Sr```
+
+	- Symmetrically, if Mitsos chooses ```r```, then he will get as many as Kitsos would in ```lS``` plus one, if ```r``` is black.
+
+	- Since Mitsos plays optimally, he will pick `l` or `r` based on the number of black pebbles that he will have at the end of the game:
+
+	```
+	If Mitsos chooses l
+		If l is 'b', (kr+1,mr)		//Mitsos gets kr+1 Kitsos gets mr
+		If l is 'w', (kr,mr)
+	If Mitsos chooses r
+		If r is 'b', (kl+1,ml)
+		If r is 'w', (kl,ml)
+	```
+
+	Therefore, the number of black pebbles that each player will get if they play optimally, can be computed through `dp`, by the following recursive algorithm:
+
+	```
+	most_favourable((m1,k1),(m2,k2)):
+		if(m1<m2) then 
+			return (m1,k1)
+		else 
+			return (m2,k2)
+
+
+	//Argument Pattern Matching
+	dp('b'):
+		return (1,0)
+	dp('w'):
+		returns (0,0)
+	dp(lSr):
+		
+		(ml,kl) := dp(lS)
+		(mr,kr) := dp(Sr)
+
+		return most_favourable(
+			(kl + (r=='b') , ml),			//r==b returns 1 if condition true, 0 otherwise
+			(kr + (l=='b') , mr)
+			)
+	```
+
+
+	Notice that the computation of ```dp(lSr)``` requires the result of two subproblems of size one less than ```lSr```. Therefore, dp can be computed dynamically as follows:
+
+	```
+	Calculate dp for all subproblems of size 1 (n in total)
+	Calculate dp for all subproblems of size 2 (n-1 in total)
+	... 
+	Calculate dp for all subproblems of size n (1 in total)
+	```
+
+A typical implementation of this in an imperative language would utilize a 2D array ```dp[i][j]``` to store the subproblem results. In the first iteration, the diagonal ```dp[1][1], dp[2][2] ... dp[n][n]``` of the array would be computed. Then, the adjacent diagonal ```dp[1][2], dp[2][3],...dp[n-1][n]```, and so on...up until the corner ```dp[n][n]```.  
+
+
+
+It turns out that this solution can be *slightly modified* to be **applicable to the original problem**:
+
+```
+Consider an instance of the original problem: "wbwbbwbwbbwbwwb" with K = 3
+
+The algorithm that we presented can be used to solve instances with 2K-1 = 5 black pebbles
+
+In this problem we have B=8 black pebbles. 
+
+Assume that the two players, after some moves, have reached this state of the game "bbwbwb"  (wbw 'bbwbwb' bwbwwb)
+This means that they both have 2 black pebbles each and the next person to choose a black loses.
+Since the first player is forced to take b, he loses. 
+
+This would be true for any interval that starts and ends with b's and contains exactly (B - 2K + 2) many b's, namely: 
+
+- Subproblem 1-6 : "bwbbwb"
+-            3-8 : "bbwbwb"
+-            4-9 : "bwbwbb"
+-            6-11: "bwbbwb"
+-            8-14: "bbwbwwb"
+```
+
+The idea is that if we 'replaced' such intervals with single b's, then the problem would contain exactly 2K-1 black pebbles.
+
+In other words, **in the context of recursion, these intervals behave just like base cases of single black pebbles**.
+
+Therefore, if we modify our algorithm so that ```dp(any such interval) = dp("b") = (2,0)```, it will produce correct results for the original problem.
+
+
+
+As if all of this wasn't enough, now we have to write this in Haskell, which means no dp arrays and no assignment operators. Fortunately, the dynamic formula can be easily converted into a stateless function and the computation of the dp array can be done as follows:
+
+
+```
+Input some problem S = "bwb...wwbw"
+Create intervals of size 1 and put them in a list. (layer 1)
+Combine adjacent intervals from the list according to the dynamic formula (layer 2)
+Combine adjacent intervals again (layer 3)
+.
+.
+.
+Combine last two intervals into one, containing the final answer (mitsos,kitsos) (layer n)
+
+if mitsos < kitsos return "yes"
+otherwise return "no"
+```
+
+(This is equivalent to computing the diagonals of the dp array)
+
+Both the imperative and the functional implementations of this algorithm have a complexity of O(n^2), as the number of subproblems suggests.
+
+In the final implementation I also applied an optimization of removing adjacent pairs of white pebbles.
+
+
 
