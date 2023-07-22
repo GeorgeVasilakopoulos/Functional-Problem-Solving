@@ -325,9 +325,9 @@ This problem can be solved with a greedy approach:
 ```
 check_constraints((A1,B1,C1), (A2,B2,C2)):
 	return 		B1 + C1 >= A2	//There are enough remaining Bs and Cs to replace the rest of As
-				 &&	A1 + C1 >= B2 //There are enough remaining As and Cs to replace the rest of Bs
-				 && A1 + B1 >= C2	//...
-				 && A1>=0 && B1 >=0 && C1 >=0
+		    &&  A1 + C1 >= B2 //There are enough remaining As and Cs to replace the rest of Bs
+		    &&  A1 + B1 >= C2	//...
+		    &&  A1>=0 && B1 >=0 && C1 >=0
 
 lexword(K,M):
 	(Ak,Bk,Ck) = Count number of occurances of each character in K 
@@ -339,29 +339,30 @@ lexword(K,M):
 		if c is 'a':
 			if check_constraints((Ak,Bk-1,Ck), (Am-1,Bm,Cm)) //Selecting a b does not violate the constraints
 				output_word += 'b'
-				Bk -= 1 					//One less b available
+				Bk -= 1 		//One less b available
 			else 
 				output_word += 'c'
-				Ck -= 1  					//One less c available
+				Ck -= 1  		//One less c available
 			Am -= 1 			//One less a left
 
 		else if c is 'b':
 			if check_constraints((Ak-1,Bk,Ck), (Am,Bm-1,Cm)) //Selecting an a does not violate the constraints
 				output_word += 'a'
-				Ak -= 1 					//One less a available
+				Ak -= 1 		//One less a available
 			else 
 				output_word += 'c'
-				Ck -= 1  					//One less c available
+				Ck -= 1  		//One less c available
 			Bm -= 1 			//One less b left
 
 		else if c is 'c'
-			if check_constraints((Ak-1,Bk,Ck), (Am,Bm,Cm-1)) //Selecting an a does not violate the constraints
+			if check_constraints((Ak-1,Bk,Ck), (Am,Bm,Cm-1)) 
 				output_word += 'a'
-				Ak -= 1 					//One less a available
+				Ak -= 1 		//One less a available
 			else 
 				output_word += 'b'
-				Bk -= 1  					//One less b available
+				Bk -= 1  		//One less b available
 			Cm -= 1 			//One less c left
+	return output_word
 ```
 
 We can prove using induction that we can always choose a letter that does not violate the constraints. I'll leave this as an exercise to the reader ;)
@@ -372,8 +373,7 @@ Implementing this algorithm in Haskell is not difficult, as the for loop can be 
 
 The complexity is, of course, O(n), as we only traverse the N lettered strings twice.
 
-
-
+---
 
 
 
