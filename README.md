@@ -535,8 +535,17 @@ Else, return ("yes", transposed ordering)
 ```
 
 
+A corner case that is worth mentioning is a case where one word that is a substring of another, *succeeds* it in the ordering, while being next to it:
 
-The Haskell implementation of this algorithm has a complexity of O(nlogn) due to the sortings.
+```
+1. ashtray
+2. ash
+```
+
+In standard lexicographical ordering, substrings of words *preceed* them in the ordering. Therefore, in such a case **no key exists**. The recursive algorithm for the constraints should handle such a case appropriately.
+
+
+The Haskell implementation of this algorithm has a complexity of O(nlogn) due to the sortings. In an imperative language the algorithm would run in O(n).
 
 
 
