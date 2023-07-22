@@ -125,7 +125,7 @@ Mitsos and Kitsos play the following game:
 
  - Then, it's Kitsos' turn to pick a pebble from either side. 
 
- - The game stops when one of the players has collected a total of K pebbles, in which case he loses and the other player wins.  
+ - The game stops when one of the players has collected a total of K *black* pebbles, in which case he loses and the other player wins.  
 
  - There are **at least** 2K-1 black pebbles in the line.
 
